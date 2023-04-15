@@ -9,6 +9,7 @@ import * as PushAPI from "@pushprotocol/restapi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
 import { updateUserId } from "@/apps/authSlice";
+import { sendNotification } from "./components/pushProtocol";
 
 type FormData = {
     units: string,
@@ -39,6 +40,7 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
     let contractCall = await bloodContract.methods.collectBloodSample(form.app_id, form.units, form.dob).send({from: address});
     console.log("Collect Call:", contractCall)
     console.log("Form Data is: ", form);
+    sendNotification(address, 'Blood Collection', 'Blood Collected...')
     setResult(contractCall ? 'success': 'failed')
     if(contractCall) {
       console.log("Data Verified successfully")

@@ -9,6 +9,7 @@ import * as PushAPI from "@pushprotocol/restapi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
 import { updateUserId } from "@/apps/authSlice";
+import { sendNotification } from "./components/pushProtocol";
 
 type FormData = {
     name: string,
@@ -42,6 +43,7 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
     console.log("Hash:", contractCall)
     console.log("Form Data is: ", form);
     dispatch(updateUserId(contractCall));
+    sendNotification(address, 'Register', 'Registration Successfully...!')
     // router.push('/user/dashboard')
     // const signer = library.getSigner(account);
     // console.log("Account: ", account, library, chainId)

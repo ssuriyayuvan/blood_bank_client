@@ -6,6 +6,7 @@ import styles from '@/styles/HandleRequest.module.css'
 import { useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
 import { useRouter } from "next/router";
+import { sendNotification } from "./components/pushProtocol";
 
 type RequestData = {
     form_id: number,
@@ -60,7 +61,8 @@ const ApplicationRequest = ({connectionState, connectWallet}: any) => {
       console.log(app_id, status)
       let result = await bloodContract.methods.validateApplication(app_id, status).send({from: address})
       console.log("result:", result)
-      init()
+      sendNotification(address, 'Application', 'Application updated...!')
+      init();
     }
 
   return (

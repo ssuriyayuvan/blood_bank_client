@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
+import { sendNotification } from "./components/pushProtocol";
 
 const pinataApiKey = "b0a5b3a93b037b8a327e";
 const pinataSecretApiKey =
@@ -35,9 +36,13 @@ const Application = () => {
     const { bloodContract, address, user_id } = useSelector((state: RootState) => state.authReducer)
 
 
-  const submitEmployeeRegister =(e: any) => {
+  const submitEmployeeRegister =async (e: any) => {
     e.preventDefault();
     console.log("Form Data is: ", form)
+    console.log("user Id", user_id)
+    let contractCall = await bloodContract.methods.applyforBloodDonation(user_id, "IPFS image").send({from: address});
+    console.log("App Form Call:", contractCall)
+    sendNotification(address, 'Donor Form', 'Application Submitted...!')
   }
 
   useEffect(() => {
@@ -49,7 +54,7 @@ const Application = () => {
 
   const submitPdf = async () => {
     console.log("user Id", user_id)
-    let contractCall = await bloodContract.methods.applyforBloodDonation(user_id, "form image...").send({from: address});
+    let contractCall = await bloodContract.methods.applyforBloodDonation(user_id, "IPFS image").send({from: address});
     console.log("App Form Call:", contractCall)
     // const input: any = document.getElementById('empRegister');
     // html2canvas(input)
@@ -213,7 +218,7 @@ const Application = () => {
       </form>
     </div>
     <div className={styles.btnGroup}>
-    <button type="button" onClick={submitPdf}>submitPdf</button>
+    {/* <button type="button" onClick={submitPdf}>submitPdf</button> */}
     <button type="submit" onClick={submitEmployeeRegister}>Submit Form</button>
     </div>
     </>

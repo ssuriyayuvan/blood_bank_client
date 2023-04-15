@@ -9,6 +9,7 @@ import * as PushAPI from "@pushprotocol/restapi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
 import { updateUserId } from "@/apps/authSlice";
+import { sendNotification } from "./components/pushProtocol";
 
 type FormData = {
     name: string,
@@ -41,6 +42,7 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
   const confirmVerification = async (type: 'true' | 'false') => {
     let contractCall = await bloodContract.methods.validateScreeningTest(form.app_id, type).send({from: address});
     console.log("call:", contractCall)
+    sendNotification(address, 'Screening Blood', 'Blood Screening Completed...!')
   }
 
 

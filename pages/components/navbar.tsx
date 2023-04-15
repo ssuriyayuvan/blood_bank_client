@@ -133,6 +133,7 @@ const disConnectWallet = () => {
       </Link>
       <Link href="/donate">DONATE/REQUEST</Link>
       <Link href="/loginas">Dashboard</Link>
+      <Link href='/buy'>Buy</Link>
       {/* <Search /> */}
       <div>
       {!address ? <a href="#">

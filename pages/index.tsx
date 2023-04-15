@@ -10,7 +10,16 @@ import axios from 'axios'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-    const [bloodTable, setbloodTable] = useState([]);
+    const [bloodTable, setbloodTable] = useState([{
+      b_id: 1,
+      blood_group: 'O+ve',
+      unit: 1
+    },
+    {
+      b_id: 2,
+      blood_group: 'B+ve',
+      unit: 2
+    }]);
 
     //useEffect call
   
