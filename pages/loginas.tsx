@@ -4,12 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from '@/styles/Loginas.module.css'
 import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { RootState } from "@/apps/store";
 // import { useConnection } from "./_app";
 
 const LoginAs = ({connectionState, connectWallet}: any) => {
     // const {connectionState}: any = useConnection()
-    const {bloodContract, address} = connectionState
     const router = useRouter()
+    const { bloodContract, address } = useSelector((state: RootState) => state.authReducer)
     useEffect(() => {
         console.log("address:", !address, address)
         if(!bloodContract) {
@@ -31,10 +33,10 @@ const LoginAs = ({connectionState, connectWallet}: any) => {
                 val = '';
                 break;
             case 'physical_verifier':
-                val = await connectionState.bloodContract.methods.PHYSICAL_VERIFIER_ROLE().call();
+                val = await bloodContract.methods.PHYSICAL_VERIFIER_ROLE().call();
                 break;
             case 'application_approver':
-                val = await connectionState.bloodContract.methods.APPROVER_ROLE().call();
+                val = await bloodContract.methods.APPROVER_ROLE().call();
                 break;
             case 'collector':
                 val = await bloodContract.methods.COLLECTOR_ROLE().call();
@@ -46,11 +48,17 @@ const LoginAs = ({connectionState, connectWallet}: any) => {
                 val = '';
                 break;
         }
-        let isValid = await bloodContract.methods.hasRole(val, address).call();
-        console.log("isValid", isValid)
-        if(!isValid) {
-            console.log("please select correct type...")
+        if(type !== 'user') {
+            let isValid = await bloodContract.methods.hasRole(val, address).call();
+            console.log("isValid", isValid)
+            if(isValid) {
+               type === 'application_approver' ? router.push('/applicationreq') : type === 'collector' ? console.log("collctor route") : type === 'physical_verifier' ? console.log('physical page') : ''
+            } else {
+                alert(`Access Deined. Please choose correct type...!`)
+            }
         }
+            router.push('/user/dashboard');
+        
     }
 
   return (
@@ -66,13 +74,13 @@ const LoginAs = ({connectionState, connectWallet}: any) => {
         <button onClick={() => handleLogin('application_approver')}>Application Approver</button>
       {/* </Link> */}
       {/* <Link href="/samplerequest"> */}
-        <button>Physical Approver</button>
+        <button onClick={() => handleLogin('physical_verifier')}>Physical Approver</button>
       {/* </Link> */}
       {/* <Link href="/applicationreq"> */}
-        <button>Collector</button>
+        <button onClick={() => handleLogin('collector')}>Collector</button>
       {/* </Link> */}
       {/* <Link href="/applicationreq"> */}
-        <button>Screener</button>
+        <button onClick={() => handleLogin('screener')}>Screener</button>
       {/* </Link> */}
     </div>
   );

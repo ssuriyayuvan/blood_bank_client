@@ -6,6 +6,8 @@ import styles from '@/styles/EmployeeRegister.module.css'
 import { useRouter } from "next/router";
 import { NotificationItem, chainNameType } from "@pushprotocol/uiweb";
 import * as PushAPI from "@pushprotocol/restapi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/apps/store";
 
 type FormData = {
     name: string,
@@ -15,14 +17,20 @@ type FormData = {
     address?: string
 }
 
-const Register = ({connectionState}: any) => {
+const Register = () => {
   // const { connectWallet } = useConnection();
 //   const { account, library, chainId } = useWeb3React();
-  const router = useRouter()
-  useEffect(() =>{ 
-    console.log(connectionState)
-  }, [])
-  const [form, setForm] = useState<FormData>({name: '', dob: '', nationalId: '', bloodType: '', address: connectionState.address})
+const router = useRouter()
+const { bloodContract, address } = useSelector((state: RootState) => state.authReducer)
+    useEffect(() => {
+        console.log("address:", !address, address)
+        if(!bloodContract) {
+            router.push('/')
+            return
+        }
+        // init()
+    }, [])
+  const [form, setForm] = useState<FormData>({name: '', dob: '', nationalId: '', bloodType: '', address: address})
 
   const submitEmployeeRegister = async (e: any) => {
     e.preventDefault();
