@@ -6,6 +6,7 @@ export type AuthSliceType = {
   address?: string
   bloodContract: any,
   error?: string
+  user_id?: number
 }
 
 const initialState: AuthSliceType = {
@@ -14,6 +15,7 @@ const initialState: AuthSliceType = {
     address: '',
     bloodContract: '',
     error: '',
+    user_id: 1
 }
 
 export const authSlice = createSlice({
@@ -29,15 +31,18 @@ export const authSlice = createSlice({
     updateContract: (state, action: PayloadAction<any>) => {
       state.bloodContract = action.payload
     },
+    updateUserId: (state, action: PayloadAction<any>) => {
+      state.user_id = action.payload
+    },
     updateDisconnect: (state) => {
       state.bloodContract = '';
       state.address = '';
       state.web3 = null;
-      state.chainId = NaN;
+      state.chainId = 1;
     },
   },
 })
 
 export const authReducer = authSlice.reducer
 
-export const { updateWeb3, updateAddress, updateContract, updateDisconnect } = authSlice.actions
+export const { updateWeb3, updateAddress, updateContract, updateDisconnect, updateUserId } = authSlice.actions

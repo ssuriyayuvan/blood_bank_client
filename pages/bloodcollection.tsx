@@ -11,14 +11,12 @@ import { RootState } from "@/apps/store";
 import { updateUserId } from "@/apps/authSlice";
 
 type FormData = {
-    name: string,
+    units: string,
     dob: string,
-    nationalId: string,
-    bloodType: string,
-    address?: string
+    app_id: string
 }
 
-const Register = () => {
+const BloodCollection = () => {
   // const { connectWallet } = useConnection();
 //   const { account, library, chainId } = useWeb3React();
 const dispatch = useDispatch();
@@ -32,16 +30,19 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
         }
         // init()
     }, [])
-  const [form, setForm] = useState<FormData>({name: '', dob: '', nationalId: '', bloodType: '', address: address})
+  const [form, setForm] = useState<FormData>({app_id: '', units: '', dob: ''});
+  const [showNext, setShowNext] = useState(false);
+  const [result, setResult] = useState('')
 
   const submitEmployeeRegister = async (e: any) => {
     e.preventDefault();
-    let hash = web3.utils.soliditySha3(form.name, form.dob, form.nationalId);
-    console.log("hash", hash)
-    let contractCall = await bloodContract.methods.enrollDonor(hash, form.bloodType, address).call();
-    console.log("Hash:", contractCall)
+    let contractCall = await bloodContract.methods.collectBloodSample(form.app_id, form.units, form.dob).send({from: address});
+    console.log("Collect Call:", contractCall)
     console.log("Form Data is: ", form);
-    dispatch(updateUserId(contractCall));
+    setResult(contractCall ? 'success': 'failed')
+    if(contractCall) {
+      console.log("Data Verified successfully")
+    }
     // router.push('/user/dashboard')
     // const signer = library.getSigner(account);
     // console.log("Account: ", account, library, chainId)
@@ -72,14 +73,22 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
 
   return (
     <div className={styles.empRegister}>
-      <h2>User Register</h2>
+      <h2>Blood Collection Data</h2>
       <form className={styles.empregForm} onSubmit={submitEmployeeRegister}>
         <input
+        name="app_id"
+        type='number'
+        placeholder="App ID"
+        onChange={(e) => {
+            setForm({...form, app_id: e.target.value});
+          }}
+        />
+        <input
           name="name"
-          type="text "
-          placeholder="Full Name"
+          type="text"
+          placeholder="Units"
           onChange={(e) => {
-            setForm({...form, name: e.target.value});
+            setForm({...form, units: e.target.value});
           }}
           required
         />
@@ -92,34 +101,10 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
           }}
           required
         />
-        <input
-          name="national_id"
-          type="text"
-          placeholder="National ID"
-          onChange={(e) => {
-            setForm({...form, nationalId: e.target.value});
-          }}
-        />
-        <select name="blood_type" onChange={(e) => setForm({...form, bloodType: e.target.value})}>
-            <option> --- Select Blood Group --- </option>
-            <option value={'op'}>O +ve</option>
-            <option value={'on'}>O -ve</option>
-            <option value={'bp'}>B +ve</option>
-            <option value={'bn'}>B -ve</option>
-        </select>
-        <input
-          name="wallet address"
-          type="text"
-          value={form.address}
-          placeholder="Wallet Addres"
-          onChange={(e) => {
-            setForm({...form, address: e.target.value});
-          }}
-        />
-        <button type="submit">Register</button>
+        <button type="submit">Collected</button>
       </form>
     </div>
   );
 };
 
-export default Register;
+export default BloodCollection;

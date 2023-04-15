@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import Web3 from "web3";
 import Blood from "../../lib/contracts/BloodD.json";
 import { useDispatch, useSelector } from "react-redux";
-import { updateAddress, updateContract, updateDisconnect, updateWeb3 } from "@/apps/authSlice";
+import { updateAddress, updateContract, updateDisconnect, updateUserId, updateWeb3 } from "@/apps/authSlice";
 import { RootState } from "@/apps/store";
 
 const defaultChainId = 1337;
@@ -17,7 +17,7 @@ export const supportedNetworks = {
       name: 'Ganache Local',
       tokenSymbol: 'ETH',
       rpcURL: 'http://localhost:8545',
-      bloodContract: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0",
+      bloodContract: "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
       // daoContract: dao.networks[1337] ? dao.networks[1337].address : ''
   },
   5: {
@@ -31,7 +31,7 @@ export const supportedNetworks = {
 
 const Navbar = () => {
 const dispatch = useDispatch();
-const { bloodContract, address } = useSelector((state: RootState) => state.authReducer)
+const { address } = useSelector((state: RootState) => state.authReducer)
 
 const router = useRouter()
 
@@ -77,7 +77,10 @@ const connectWallet = async () => {
             Blood.abi,
             supportedNetworks[defaultChainId].bloodContract
         );
+        let userId = await bloodContract.methods.address2DonorID(address).call();
+        console.log("user ID", userId)
         dispatch(updateContract(bloodContract));
+        dispatch(updateUserId(userId));
         console.log("bloodContract After Connect: ", address)
         localStorage.setItem('isAdmin', 'false')
         router.push('/loginas')
@@ -129,7 +132,7 @@ const disConnectWallet = () => {
         <Image src="/assets/img/bdrop.png" alt="bdroplogo" width={45} height={45} />
       </Link>
       <Link href="/donate">DONATE/REQUEST</Link>
-      <Link href="/dashboard">Dashboard</Link>
+      <Link href="/loginas">Dashboard</Link>
       {/* <Search /> */}
       <div>
       {!address ? <a href="#">

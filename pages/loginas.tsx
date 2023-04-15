@@ -6,6 +6,7 @@ import styles from '@/styles/Loginas.module.css'
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { RootState } from "@/apps/store";
+import html2canvas from "html2canvas";
 // import { useConnection } from "./_app";
 
 const LoginAs = ({connectionState, connectWallet}: any) => {
@@ -52,12 +53,15 @@ const LoginAs = ({connectionState, connectWallet}: any) => {
             let isValid = await bloodContract.methods.hasRole(val, address).call();
             console.log("isValid", isValid)
             if(isValid) {
-               type === 'application_approver' ? router.push('/applicationreq') : type === 'collector' ? console.log("collctor route") : type === 'physical_verifier' ? console.log('physical page') : ''
+               type === 'application_approver' ? router.push('/applicationreq') : type === 'collector' ? router.push('/bloodcollection') : type === 'physical_verifier' ? router.push('physicaldataverify') : type === 'screener' ? router.push('screening') : '';
+               return
             } else {
-                alert(`Access Deined. Please choose correct type...!`)
+                alert(`Access Deined. Please choose correct type...!`);
+                return
             }
         }
-            router.push('/user/dashboard');
+        // if()
+        router.push('/user/dashboard')
         
     }
 

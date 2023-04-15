@@ -15,10 +15,11 @@ type FormData = {
     dob: string,
     nationalId: string,
     bloodType: string,
-    address?: string
+    address?: string,
+    app_id: string
 }
 
-const Register = () => {
+const PhysicalDataVerify = () => {
   // const { connectWallet } = useConnection();
 //   const { account, library, chainId } = useWeb3React();
 const dispatch = useDispatch();
@@ -32,16 +33,20 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
         }
         // init()
     }, [])
-  const [form, setForm] = useState<FormData>({name: '', dob: '', nationalId: '', bloodType: '', address: address})
+  const [form, setForm] = useState<FormData>({app_id: '', name: '', dob: '', nationalId: '', bloodType: '', address: address});
+  const [showNext, setShowNext] = useState(false);
+  const [result, setResult] = useState('')
 
   const submitEmployeeRegister = async (e: any) => {
     e.preventDefault();
     let hash = web3.utils.soliditySha3(form.name, form.dob, form.nationalId);
-    console.log("hash", hash)
-    let contractCall = await bloodContract.methods.enrollDonor(hash, form.bloodType, address).call();
-    console.log("Hash:", contractCall)
+    let contractCall = await bloodContract.methods.validateHashOfUser(form.app_id,  hash).call();
+    console.log("Hash:", hash, contractCall)
     console.log("Form Data is: ", form);
-    dispatch(updateUserId(contractCall));
+    setResult(contractCall ? 'success': 'failed')
+    if(contractCall) {
+      console.log("Data Verified successfully")
+    }
     // router.push('/user/dashboard')
     // const signer = library.getSigner(account);
     // console.log("Account: ", account, library, chainId)
@@ -69,14 +74,27 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
     }
   }
 
+  const confirmVerification = async (type: 'true' | 'false') => {
+    let contractCall = await bloodContract.methods.validatePhysicalUserData(form.app_id, type).send({from: address});
+    console.log("call:", contractCall)
+  }
+
 
   return (
     <div className={styles.empRegister}>
-      <h2>User Register</h2>
+      <h2>Physical Data Verification</h2>
       <form className={styles.empregForm} onSubmit={submitEmployeeRegister}>
         <input
+        name="app_id"
+        type='number'
+        placeholder="App ID"
+        onChange={(e) => {
+            setForm({...form, app_id: e.target.value});
+          }}
+        />
+        <input
           name="name"
-          type="text "
+          type="text"
           placeholder="Full Name"
           onChange={(e) => {
             setForm({...form, name: e.target.value});
@@ -107,19 +125,22 @@ const { bloodContract, address, web3 } = useSelector((state: RootState) => state
             <option value={'bp'}>B +ve</option>
             <option value={'bn'}>B -ve</option>
         </select>
-        <input
-          name="wallet address"
-          type="text"
-          value={form.address}
-          placeholder="Wallet Addres"
-          onChange={(e) => {
-            setForm({...form, address: e.target.value});
-          }}
-        />
-        <button type="submit">Register</button>
+        <button type="submit">Check Data</button>
+        <p>Status: {result}</p>
       </form>
+
+      <label style={{marginTop: '20px'}}>Physical Check Done</label>
+      <input type={'checkbox'} onChange={() => setShowNext(el => !el)} />
+      {showNext && 
+      <>
+      <div className={styles.btnGroup}>
+      <button onClick={() => confirmVerification('true')}>Accept</button>
+      <button onClick={() => confirmVerification('false')}>Reject</button>
+      </div>
+      </>
+      }
     </div>
   );
 };
 
-export default Register;
+export default PhysicalDataVerify;

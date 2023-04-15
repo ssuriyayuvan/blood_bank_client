@@ -1,8 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
 import Link from "next/link";
-import styles from '@/styles/EmployeeRegister.module.css'
+import styles from '@/styles/EmployeeRegister.module.css';
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
+import { RootState } from "@/apps/store";
+
+const pinataApiKey = "b0a5b3a93b037b8a327e";
+const pinataSecretApiKey =
+  "732a7772f1b8866c6f467cf653e153e8fc098eb6841b52147f99b83e6430aae9";
+const PREFIX_IPFS = "https://ipfs.io/ipfs/";
+const IPFS_URL = "https://gateway.pinata.cloud/ipfs/"; // 'https://ipfs.io/ipfs/';
 
 type FormData = {
     name: string,
@@ -18,7 +30,9 @@ type FormData = {
 
 const Application = () => {
   // const { connectWallet } = useConnection();
-  const [form, setForm] = useState<FormData>({name: '', dob: '', phone: '', bloodType: '', qn_1: false, qn_2: false, gender: '', qn_3: false})
+  const [form, setForm] = useState<FormData>({name: '', dob: '', phone: '', bloodType: '', qn_1: false, qn_2: false, gender: '', qn_3: false});
+  const router = useRouter()
+    const { bloodContract, address, user_id } = useSelector((state: RootState) => state.authReducer)
 
 
   const submitEmployeeRegister =(e: any) => {
@@ -26,50 +40,54 @@ const Application = () => {
     console.log("Form Data is: ", form)
   }
 
+  useEffect(() => {
+    if(!bloodContract) {
+      router.push('/');
+      return
+    }
+  }, [address])
+
+  const submitPdf = async () => {
+    console.log("user Id", user_id)
+    let contractCall = await bloodContract.methods.applyforBloodDonation(user_id, "form image...").send({from: address});
+    console.log("App Form Call:", contractCall)
+    // const input: any = document.getElementById('empRegister');
+    // html2canvas(input)
+    //   .then(async (canvas) => {
+    //     const imgData = canvas.toDataURL('image/png');
+    //     const pdf = new jsPDF();
+    //     pdf.addImage(imgData, 'JPEG', 0, 0, 220, 220);
+    //     // pdf.output('dataurlnewwindow');
+    //     pdf.save("download.pdf");
+     
+
+    //   try {
+    //     // const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+    //     // const { data }: any = await axios.post(url, imgData, {
+    //     //   maxContentLength: 999999,
+    //     //   headers: {
+    //     //     Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJhOGRjYmUwNS00YTk1LTQ2NGQtOTM5Yi1lYTYyNTA3YmY2MGMiLCJlbWFpbCI6InN1cml5YS5zQGd1YXJkaWFubGluay5pbyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImlkIjoiRlJBMSIsImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxfV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJiMGE1YjNhOTNiMDM3YjhhMzI3ZSIsInNjb3BlZEtleVNlY3JldCI6IjczMmE3NzcyZjFiODg2NmM2ZjQ2N2NmNjUzZTE1M2U4ZmMwOThlYjY4NDFiNTIxNDdmOTliODNlNjQzMGFhZTkiLCJpYXQiOjE2ODE1NzkxMzV9.muoZCNqrxrTG5bfI0LO9BULyvymzIWLDMgLXDBeBrwM',
+    //     //     "Content-Type": `multipart/form-data`,
+    //     //     pinata_api_key: pinataApiKey,
+    //     //     pinata_secret_api_key: pinataSecretApiKey,
+    //     //   },
+    //     // });
+    //     // console.log("DATA Hash: ", data);
+
+    //     // contract Call applyforBloodDonation
+        
+    //   } catch (error) {
+    //     console.log("error", error)
+    //   }
+    // });
+}
+
 
   return (
-    <div className={styles.empRegister}>
+    <>
+    <div id="empRegister" className={styles.empRegister}>
       <h2>Donar Form</h2>
       <form className={styles.empregForm} onSubmit={submitEmployeeRegister}>
-        <input
-          name="name"
-          type="text "
-          placeholder="Full Name"
-          onChange={(e) => {
-            setForm({...form, name: e.target.value});
-          }}
-          required
-        />
-        <input
-          name="dob"
-          type="date"
-          placeholder="DOB"
-          onChange={(e) => {
-            setForm({...form, dob: e.target.value});
-          }}
-          required
-        />
-        <input
-          name="phone_no"
-          type="text"
-          placeholder="Phone Number"
-          onChange={(e) => {
-            setForm({...form, phone: e.target.value});
-          }}
-        />
-        <select name="gender" onChange={(e) => setForm({...form, gender: e.target.value})}>
-            <option> --- Select Gender --- </option>
-            <option value={'male'}>Male</option>
-            <option value={'femal'}>Female</option>
-            <option value={'other'}>Other</option>
-        </select>
-        <select name="blood_type" onChange={(e) => setForm({...form, bloodType: e.target.value})}>
-            <option> --- Select Blood Group --- </option>
-            <option value={'op'}>O +ve</option>
-            <option value={'on'}>O -ve</option>
-            <option value={'bp'}>B +ve</option>
-            <option value={'bn'}>B -ve</option>
-        </select>
         <h3 style={{marginTop: '13px'}}>TEMPORARY DEFERRAL, IN THE PAST 12 MONTHS HAVE YOU</h3>
         <div>
         <label htmlFor="qn_1">
@@ -192,9 +210,13 @@ const Application = () => {
           }}
         />
         </div>
-        <button type="submit">Submit Form</button>
       </form>
     </div>
+    <div className={styles.btnGroup}>
+    <button type="button" onClick={submitPdf}>submitPdf</button>
+    <button type="submit" onClick={submitEmployeeRegister}>Submit Form</button>
+    </div>
+    </>
   );
 };
 

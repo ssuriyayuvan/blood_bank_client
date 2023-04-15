@@ -12,6 +12,25 @@
     text-align: center;
     align-items: center;
 }
+.btnGroup{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+}
+
+.btnGroup button {
+    width: 90px;
+    height: 30px;
+    margin-top: 30px;
+    align-items: center;
+}
+.empregForm h3{
+    text-align: center;
+    align-items: center;
+    color: red;
+    /* font-family: 'Courier New', Courier, monospace; */
+}
 .div_form{
     /* display: flex; */
     padding: 0;
