@@ -14,14 +14,6 @@ export default function Donate() {
     const [bloodTable, setbloodTable] = useState([]);
 
     //useEffect call
-    useEffect(() => {
-      axios
-        .get("http://localhost:3005/home")
-        .then(function (response) {
-          //console.log(response);
-          setbloodTable(response.data)
-        });
-    }, []);
   
     return (
         <div className={styles.donate}>
